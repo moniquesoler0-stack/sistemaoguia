@@ -628,6 +628,33 @@ export type Database = {
           },
         ]
       }
+      pagamentos_processados: {
+        Row: {
+          chave: string
+          criado_em: string
+          email: string | null
+          pedido: string | null
+          produto: string | null
+          status: string | null
+        }
+        Insert: {
+          chave: string
+          criado_em?: string
+          email?: string | null
+          pedido?: string | null
+          produto?: string | null
+          status?: string | null
+        }
+        Update: {
+          chave?: string
+          criado_em?: string
+          email?: string | null
+          pedido?: string | null
+          produto?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           criado_em: string

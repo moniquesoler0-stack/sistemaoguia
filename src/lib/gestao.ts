@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { auditar, type BaseLoja, type Canal } from "./calculos";
+import { custoVariavelUnit, margemContribuicao, type BaseLoja, type Canal } from "./calculos";
 import type { Produto } from "./loja";
 
 export type LinhaEstoque = {
@@ -103,10 +103,28 @@ export function useInvalidarGestao() {
   };
 }
 
+/**
+ * A tela da peça grava tamanhos e cores em entradas separadas: {tamanho:"P"} e
+ * {cor:"preto"}. No estoque isso precisa virar a grade de verdade, "P / preto",
+ * e não duas linhas soltas que contariam a mesma peça duas vezes.
+ */
 export function variacoesDoProduto(produto: Produto): string[] {
-  const lista = (produto.variacoes ?? [])
-    .map((v) => [v.tamanho, v.cor].filter(Boolean).join(" / "))
-    .filter((v) => v.length > 0);
+  const entradas = produto.variacoes ?? [];
+
+  // Quem já veio combinado é respeitado como está.
+  const combinadas = entradas
+    .filter((v) => v.tamanho && v.cor)
+    .map((v) => `${v.tamanho} / ${v.cor}`);
+
+  const tamanhos = entradas.filter((v) => v.tamanho && !v.cor).map((v) => v.tamanho as string);
+  const cores = entradas.filter((v) => v.cor && !v.tamanho).map((v) => v.cor as string);
+
+  const cruzadas =
+    tamanhos.length && cores.length
+      ? tamanhos.flatMap((t) => cores.map((c) => `${t} / ${c}`))
+      : [...tamanhos, ...cores];
+
+  const lista = [...combinadas, ...cruzadas].filter((v, i, todas) => todas.indexOf(v) === i);
   return lista.length > 0 ? lista : ["Única"];
 }
 
@@ -136,7 +154,11 @@ export async function moverEstoque(params: {
     .eq("variacao", params.variacao)
     .maybeSingle();
 
-  const nova = Math.max(0, Number(atual?.quantidade ?? 0) + params.delta);
+  const anterior = Number(atual?.quantidade ?? 0);
+  const nova = Math.max(0, anterior + params.delta);
+  // Vender cinco tendo três baixa só três. O movimento registra o que de fato
+  // saiu, senão o histórico deixa de bater com o saldo.
+  const aplicado = Math.abs(nova - anterior);
   if (atual) {
     await supabase
       .from("loja_estoque")
@@ -156,7 +178,7 @@ export async function moverEstoque(params: {
     produto_id: params.produtoId,
     variacao: params.variacao,
     tipo: params.tipo,
-    quantidade: Math.abs(params.delta),
+    quantidade: aplicado,
     motivo: params.motivo ?? null,
     origem_id: params.origemId ?? null,
   });
@@ -212,14 +234,16 @@ export async function registrarVenda(params: {
   if (!id) return null;
 
   const calculados = params.itens.map((i) => {
-    const conta = auditar(
-      { ...i.produto, preco_atual: i.preco },
-      params.base,
-      i.preco,
-      params.canal,
-      params.parcelas,
-    );
-    return { ...i, lucro: conta.lucro, custo: conta.custosAbs };
+    const peca = { ...i.produto, preco_atual: i.preco };
+    return {
+      ...i,
+      // Custo variável da peça naquele dia: mercadoria, frete rateado, perda e
+      // embalagem. Custo fixo e anúncio são do mês inteiro, não da peça, e por
+      // isso saem uma vez só no financeiro. Guardá-los aqui os contaria duas vezes.
+      custo: custoVariavelUnit(peca),
+      // O que a venda deixa depois do custo variável, da taxa do canal e do imposto.
+      lucro: margemContribuicao(peca, params.base, i.preco, params.canal, params.parcelas),
+    };
   });
 
   const total =

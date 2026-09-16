@@ -4,16 +4,9 @@ import { Casca } from "@/components/Casca";
 import { Esqueleto } from "@/components/Esqueleto";
 import { useDadosLoja, usePerfil } from "@/lib/loja";
 import { podeSistema } from "@/lib/pro";
-import { custoVariavelUnit } from "@/lib/calculos";
 import { moeda, numero, pct } from "@/lib/formato";
-import {
-  mesAnterior,
-  mesAtual,
-  useGestao,
-  useInvalidarGestao,
-  type Venda,
-  type VendaItem,
-} from "@/lib/gestao";
+import { mesAnterior, mesAtual, useGestao, useInvalidarGestao } from "@/lib/gestao";
+import { caixaDoMes, resumoDoMes } from "@/lib/financeiro";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/financeiro")({
@@ -48,7 +41,6 @@ function Financeiro() {
   const [valor, setValor] = useState("");
   const [tipo, setTipo] = useState("saida");
 
-  const produtos = loja.data?.produtos ?? [];
   const custosFixosTotal = (loja.data?.custosFixos ?? []).reduce(
     (s, c) => s + Number(c.valor_mensal),
     0,
@@ -58,44 +50,30 @@ function Financeiro() {
   const itens = gestao.data?.itens ?? [];
   const lancamentos = gestao.data?.lancamentos ?? [];
 
-  const resumo = (filtro: (v: Venda) => boolean) => {
-    const doPeriodo = vendas.filter((v) => filtro(v) && v.status !== "devolvida");
-    const ids = new Set(doPeriodo.map((v) => v.id));
-    const linhas = itens.filter((i: VendaItem) => ids.has(i.venda_id));
-    const faturamento = doPeriodo.reduce((s, v) => s + Number(v.total), 0);
-    const pecas = linhas.reduce((s, i) => s + i.quantidade, 0);
-    const custoPecas = linhas.reduce((s, i) => {
-      const p = produtos.find((x) => x.id === i.produto_id);
-      return s + (p ? custoVariavelUnit(p) : 0) * i.quantidade;
-    }, 0);
-    const lucroBruto = linhas.reduce(
-      (s, i) => s + Number(i.lucro_unitario) * i.quantidade,
-      0,
-    );
-    const taxas = Math.max(0, faturamento - custoPecas - lucroBruto - adsMensal * 0);
-    const sobrouVendas = faturamento - custoPecas - taxas;
-    const lucroMes = sobrouVendas - custosFixosTotal;
-    return { faturamento, pecas, custoPecas, taxas, sobrouVendas, lucroMes };
-  };
-
-  const atual = useMemo(() => resumo((v) => mesAtual(v.data)), [vendas, itens, produtos, custosFixosTotal]);
-  const passado = useMemo(() => resumo((v) => mesAnterior(v.data)), [vendas, itens, produtos, custosFixosTotal]);
+  const atual = useMemo(
+    () =>
+      resumoDoMes({ vendas, itens, custosFixosTotal, adsMensal, doPeriodo: (v) => mesAtual(v.data) }),
+    [vendas, itens, custosFixosTotal, adsMensal],
+  );
+  const passado = useMemo(
+    () =>
+      resumoDoMes({
+        vendas,
+        itens,
+        custosFixosTotal,
+        adsMensal,
+        doPeriodo: (v) => mesAnterior(v.data),
+      }),
+    [vendas, itens, custosFixosTotal, adsMensal],
+  );
 
   const doMes = lancamentos.filter((l) => mesAtual(l.data));
-  const entradasManuais = doMes
-    .filter((l) => l.tipo === "entrada" || l.tipo === "aporte")
-    .reduce((s, l) => s + Number(l.valor), 0);
-  const saidasManuais = doMes
-    .filter((l) => l.tipo === "saida")
-    .reduce((s, l) => s + Number(l.valor), 0);
-  const retiradas = doMes
-    .filter((l) => l.tipo === "retirada")
-    .reduce((s, l) => s + Number(l.valor), 0);
-
-  const lucroFinal = atual.lucroMes - saidasManuais + entradasManuais;
+  const caixa = useMemo(
+    () => caixaDoMes({ resumo: atual, lancamentos: doMes, custosFixosTotal }),
+    [atual, lancamentos, custosFixosTotal],
+  );
+  const { entradas: entradasManuais, saidas: saidasManuais, retiradas, lucroFinal, podeTirar } = caixa;
   const reservaReposicao = atual.custoPecas;
-  const caixa = atual.faturamento + entradasManuais - saidasManuais - retiradas - custosFixosTotal;
-  const podeTirar = Math.max(0, Math.min(lucroFinal - retiradas, caixa - reservaReposicao));
 
   const volumeEstimado = Number(loja.data?.config?.volume_mensal_esperado ?? 0);
   const fixoUnitReal = custosFixosTotal / Math.max(1, atual.pecas);
@@ -173,6 +151,9 @@ function Financeiro() {
                 <Linha rotulo="menos taxas e impostos" valor={moeda(-atual.taxas)} />
                 <Linha rotulo="= o que sobrou das vendas" valor={moeda(atual.sobrouVendas)} forte />
                 <Linha rotulo="menos custos fixos" valor={moeda(-custosFixosTotal)} />
+                {adsMensal > 0 ? (
+                  <Linha rotulo="menos anúncios" valor={moeda(-adsMensal)} />
+                ) : null}
                 <Linha rotulo="= lucro do mês" valor={moeda(atual.lucroMes)} forte />
               </ul>
               <p className="mt-3 text-[12px] text-muted-foreground">
@@ -187,8 +168,8 @@ function Financeiro() {
                 {moeda(podeTirar)}
               </p>
               <p className="mt-2 text-[12px] leading-relaxed text-secondary-foreground">
-                Já separando {moeda(reservaReposicao)} para repor as peças que saíram e{" "}
-                {moeda(retiradas)} que você já retirou este mês.
+                Os {moeda(reservaReposicao)} para repor as peças que saíram já estão descontados,
+                e {moeda(retiradas)} que você já retirou este mês também.
               </p>
             </section>
 

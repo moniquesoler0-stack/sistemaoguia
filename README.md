@@ -15,7 +15,12 @@ cp .env.example .env   # preencha com as chaves do seu projeto Supabase
 bun run dev            # http://localhost:8080
 ```
 
-Outros comandos: `bun run build` (produção), `bun run lint`, `bun run format`.
+Outros comandos: `bun run build` (produção), `bun run test`, `bun run lint`,
+`bun run format`.
+
+Os testes cobrem as contas que não podem errar: o resultado do mês em
+`src/lib/financeiro.ts` e a grade de variações em `src/lib/gestao.ts`. Rodam no
+runner embutido do Bun, sem dependência extra.
 
 ## Variáveis de ambiente
 

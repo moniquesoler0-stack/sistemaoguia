@@ -74,17 +74,38 @@ function Compras() {
       .filter((i) => i.aplicar_por_padrao)
       .map((i) => ({ nome: i.nome, valor: Number(i.valor_unitario) }));
 
-    await supabase.from("loja_produtos").insert(
-      linhas.map((l) => ({
-        user_id: uid,
-        nome: l.nome,
-        fornecedor_id: fornecedor || null,
-        custo_mercadoria: l.custo,
-        frete_rateado: Number(rateio(l.custo).toFixed(2)),
-        itens_embalagem: padrao,
-        margem_alvo_pct: loja.data?.config?.margem_minima_pct ?? 20,
-      })),
+    // Recomprar a mesma peça atualiza o custo dela, não cria uma peça repetida.
+    const existentes = new Map(
+      (loja.data?.produtos ?? []).map((p) => [p.nome.trim().toLowerCase(), p]),
     );
+    const novas = linhas.filter((l) => !existentes.has(l.nome.toLowerCase()));
+    const repetidas = linhas.filter((l) => existentes.has(l.nome.toLowerCase()));
+
+    if (novas.length > 0) {
+      await supabase.from("loja_produtos").insert(
+        novas.map((l) => ({
+          user_id: uid,
+          nome: l.nome,
+          fornecedor_id: fornecedor || null,
+          custo_mercadoria: l.custo,
+          frete_rateado: Number(rateio(l.custo).toFixed(2)),
+          itens_embalagem: padrao,
+          margem_alvo_pct: loja.data?.config?.margem_minima_pct ?? 20,
+        })),
+      );
+    }
+
+    for (const l of repetidas) {
+      const produto = existentes.get(l.nome.toLowerCase())!;
+      await supabase
+        .from("loja_produtos")
+        .update({
+          custo_mercadoria: l.custo,
+          frete_rateado: Number(rateio(l.custo).toFixed(2)),
+          fornecedor_id: fornecedor || produto.fornecedor_id,
+        })
+        .eq("id", produto.id);
+    }
 
     setItens([{ nome: "", qtd: "1", custo: "" }]);
     setFrete("");
