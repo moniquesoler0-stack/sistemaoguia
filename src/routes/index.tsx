@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessao } from "@/lib/sessao";
-import { usePerfil, useInvalidarLoja } from "@/lib/loja";
+import { usePerfil } from "@/lib/loja";
 import { Esqueleto } from "@/components/Esqueleto";
 
 export const Route = createFileRoute("/")({
@@ -29,8 +29,7 @@ function Vendas() {
   const { sessao, carregando } = useSessao();
   const perfil = usePerfil();
   const navigate = useNavigate();
-  const invalidar = useInvalidarLoja();
-  const [ativando, setAtivando] = useState<null | "vitalicio" | "pro">(null);
+  const [aviso, setAviso] = useState<string | null>(null);
 
   const pronto = !carregando && !perfil.isLoading;
   const podePrecificar =
@@ -40,22 +39,14 @@ function Vendas() {
     if (pronto && sessao && podePrecificar) void navigate({ to: "/painel" });
   }, [pronto, sessao, podePrecificar, navigate]);
 
-  async function comprar(qual: "vitalicio" | "pro") {
+  // O acesso é liberado pelo webhook de pagamento, não pelo navegador: o banco
+  // não aceita mais que a própria pessoa ligue o Pro para si.
+  function comprar() {
     if (!sessao) {
       void navigate({ to: "/entrar" });
       return;
     }
-    setAtivando(qual);
-    const campos =
-      qual === "vitalicio"
-        ? { tem_minha_loja: true }
-        : {
-            tem_minha_loja_pro: true,
-            pro_expira_em: new Date(Date.now() + 30 * 864e5).toISOString(),
-          };
-    await supabase.from("perfis").update(campos).eq("id", sessao.user.id);
-    invalidar();
-    setAtivando(null);
+    setAviso("O checkout ainda não está conectado. Assim que estiver, este botão leva direto ao pagamento.");
   }
 
   return (
@@ -118,11 +109,10 @@ function Vendas() {
               equilíbrio e comparativo de canais.
             </p>
             <button
-              onClick={() => void comprar("vitalicio")}
-              disabled={ativando !== null}
-              className="mt-4 h-13 w-full rounded-2xl bg-pink py-4 fonte-display text-[15px] font-semibold leading-none text-primary-foreground shadow-lg shadow-pink/30 disabled:opacity-60"
+              onClick={comprar}
+              className="mt-4 h-13 w-full rounded-2xl bg-pink py-4 fonte-display text-[15px] font-semibold leading-none text-primary-foreground shadow-lg shadow-pink/30"
             >
-              {ativando === "vitalicio" ? "Liberando acesso" : "Comprar acesso vitalício"}
+              Comprar acesso vitalício
             </button>
           </article>
 
@@ -134,11 +124,10 @@ function Vendas() {
               financeiro. Mesmas peças, nada de recadastrar.
             </p>
             <button
-              onClick={() => void comprar("pro")}
-              disabled={ativando !== null}
-              className="mt-4 w-full rounded-2xl bg-ink py-4 fonte-display text-[15px] font-semibold leading-none text-background disabled:opacity-60"
+              onClick={comprar}
+              className="mt-4 w-full rounded-2xl bg-ink py-4 fonte-display text-[15px] font-semibold leading-none text-background"
             >
-              {ativando === "pro" ? "Liberando acesso" : "Assinar a Pro"}
+              Assinar a Pro
             </button>
           </article>
         </div>
@@ -156,10 +145,11 @@ function Vendas() {
         )}
       </p>
 
-      <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-        A cobrança ainda não está conectada a um meio de pagamento. Por enquanto os botões liberam o
-        acesso na hora, para você testar o app por dentro.
-      </p>
+      {aviso ? (
+        <p className="mt-4 rounded-2xl bg-cream p-3.5 text-center text-[12.5px] leading-relaxed ring-1 ring-black/5">
+          {aviso}
+        </p>
+      ) : null}
     </main>
   );
 }

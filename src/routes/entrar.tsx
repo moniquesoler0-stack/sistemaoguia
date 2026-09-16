@@ -1,8 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useSessao } from "@/lib/sessao";
+
+// O botão do Google só aparece depois que o provedor estiver configurado no
+// painel do Supabase. Ligue com VITE_GOOGLE_LOGIN="true" no .env.
+const googleAtivo = import.meta.env["VITE_GOOGLE_LOGIN"] === "true";
 
 export const Route = createFileRoute("/entrar")({
   head: () => ({
@@ -61,15 +64,12 @@ function Entrar() {
 
   async function comGoogle() {
     setErro(null);
-    const resultado = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    // O Supabase leva a pessoa para o Google e devolve na origem do site.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
     });
-    if (resultado.error) {
-      setErro("Não foi possível entrar com o Google agora. Tente pelo email.");
-      return;
-    }
-    if (resultado.redirected) return;
-    void navigate({ to: "/" });
+    if (error) setErro("Não foi possível entrar com o Google agora. Tente pelo email.");
   }
 
   return (
@@ -106,12 +106,14 @@ function Entrar() {
         </button>
       </form>
 
-      <button
-        onClick={() => void comGoogle()}
-        className="mt-3 w-full rounded-2xl bg-muted py-4 fonte-display text-[15px] font-semibold leading-none ring-1 ring-black/5"
-      >
-        Continuar com o Google
-      </button>
+      {googleAtivo ? (
+        <button
+          onClick={() => void comGoogle()}
+          className="mt-3 w-full rounded-2xl bg-muted py-4 fonte-display text-[15px] font-semibold leading-none ring-1 ring-black/5"
+        >
+          Continuar com o Google
+        </button>
+      ) : null}
 
       <p className="mt-6 text-center text-[13px] text-muted-foreground">
         {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}

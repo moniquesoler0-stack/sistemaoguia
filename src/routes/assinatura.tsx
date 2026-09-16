@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Casca } from "@/components/Casca";
-import { useInvalidarLoja, usePerfil } from "@/lib/loja";
-import { supabase } from "@/integrations/supabase/client";
+import { usePerfil } from "@/lib/loja";
+import { assinaturaAtiva } from "@/lib/pro";
 
 export const Route = createFileRoute("/assinatura")({
   head: () => ({
@@ -33,23 +33,9 @@ const RECURSOS = [
 
 function Assinatura() {
   const perfil = usePerfil();
-  const invalidar = useInvalidarLoja();
-  const [ativando, setAtivando] = useState(false);
+  const [aviso, setAviso] = useState(false);
 
-  const pro = perfil.data?.tem_minha_loja_pro ?? false;
-
-  async function ativar() {
-    if (!perfil.data) return;
-    setAtivando(true);
-    const expira = new Date();
-    expira.setDate(expira.getDate() + 30);
-    await supabase
-      .from("perfis")
-      .update({ tem_minha_loja_pro: true, pro_expira_em: expira.toISOString() })
-      .eq("id", perfil.data.id);
-    setAtivando(false);
-    invalidar();
-  }
+  const pro = assinaturaAtiva(perfil.data);
 
   return (
     <Casca titulo="Minha Loja Pro" subtitulo={pro ? "ativo" : "mensal"}>
@@ -83,16 +69,17 @@ function Assinatura() {
         ) : (
           <>
             <button
-              onClick={() => void ativar()}
-              disabled={ativando}
-              className="w-full rounded-2xl bg-pink py-4 fonte-display text-[15px] font-semibold leading-none text-primary-foreground shadow-lg shadow-pink/30 disabled:opacity-60"
+              onClick={() => setAviso(true)}
+              className="w-full rounded-2xl bg-pink py-4 fonte-display text-[15px] font-semibold leading-none text-primary-foreground shadow-lg shadow-pink/30"
             >
-              Ativar o Pro por 30 dias
+              Assinar o Pro
             </button>
-            <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
-              O pagamento ainda não está ligado. Por enquanto a ativação serve para você testar o
-              que muda.
-            </p>
+            {aviso ? (
+              <p className="rounded-2xl bg-cream p-3.5 text-center text-[12.5px] leading-relaxed ring-1 ring-black/5">
+                O checkout ainda não está conectado. Assim que estiver, este botão leva direto ao
+                pagamento e o acesso é liberado automaticamente.
+              </p>
+            ) : null}
           </>
         )}
 
