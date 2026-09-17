@@ -6,6 +6,9 @@
 # Arquivos temporários da CLI do Supabase
 supabase/.temp/
 
+# Vínculo local com o projeto da Vercel
+.vercel
+
 # Logs
 logs
 *.log
