@@ -8,8 +8,7 @@ export const Route = createFileRoute("/loja/$slug")({
   head: ({ loaderData }) => {
     const titulo = loaderData?.titulo ?? "Catálogo";
     const desc =
-      loaderData?.bio ??
-      "Veja as peças disponíveis e faça seu pedido direto pelo WhatsApp.";
+      loaderData?.bio ?? "Veja as peças disponíveis e faça seu pedido direto pelo WhatsApp.";
     return {
       meta: [
         { title: `${titulo}, catálogo` },
@@ -21,8 +20,15 @@ export const Route = createFileRoute("/loja/$slug")({
       ],
     };
   },
-  errorComponent: () => <Recado titulo="Catálogo indisponível" frase="Tente abrir o link de novo em alguns instantes." />,
-  notFoundComponent: () => <Recado titulo="Catálogo não encontrado" frase="Confira o link com a loja." />,
+  errorComponent: () => (
+    <Recado
+      titulo="Catálogo indisponível"
+      frase="Tente abrir o link de novo em alguns instantes."
+    />
+  ),
+  notFoundComponent: () => (
+    <Recado titulo="Catálogo não encontrado" frase="Confira o link com a loja." />
+  ),
   component: CatalogoPublicoPagina,
 });
 

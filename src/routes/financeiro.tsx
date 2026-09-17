@@ -52,7 +52,13 @@ function Financeiro() {
 
   const atual = useMemo(
     () =>
-      resumoDoMes({ vendas, itens, custosFixosTotal, adsMensal, doPeriodo: (v) => mesAtual(v.data) }),
+      resumoDoMes({
+        vendas,
+        itens,
+        custosFixosTotal,
+        adsMensal,
+        doPeriodo: (v) => mesAtual(v.data),
+      }),
     [vendas, itens, custosFixosTotal, adsMensal],
   );
   const passado = useMemo(
@@ -72,7 +78,13 @@ function Financeiro() {
     () => caixaDoMes({ resumo: atual, lancamentos: doMes, custosFixosTotal }),
     [atual, lancamentos, custosFixosTotal],
   );
-  const { entradas: entradasManuais, saidas: saidasManuais, retiradas, lucroFinal, podeTirar } = caixa;
+  const {
+    entradas: entradasManuais,
+    saidas: saidasManuais,
+    retiradas,
+    lucroFinal,
+    podeTirar,
+  } = caixa;
   const reservaReposicao = atual.custoPecas;
 
   const volumeEstimado = Number(loja.data?.config?.volume_mensal_esperado ?? 0);
@@ -151,9 +163,7 @@ function Financeiro() {
                 <Linha rotulo="menos taxas e impostos" valor={moeda(-atual.taxas)} />
                 <Linha rotulo="= o que sobrou das vendas" valor={moeda(atual.sobrouVendas)} forte />
                 <Linha rotulo="menos custos fixos" valor={moeda(-custosFixosTotal)} />
-                {adsMensal > 0 ? (
-                  <Linha rotulo="menos anúncios" valor={moeda(-adsMensal)} />
-                ) : null}
+                {adsMensal > 0 ? <Linha rotulo="menos anúncios" valor={moeda(-adsMensal)} /> : null}
                 <Linha rotulo="= lucro do mês" valor={moeda(atual.lucroMes)} forte />
               </ul>
               <p className="mt-3 text-[12px] text-muted-foreground">
@@ -168,8 +178,8 @@ function Financeiro() {
                 {moeda(podeTirar)}
               </p>
               <p className="mt-2 text-[12px] leading-relaxed text-secondary-foreground">
-                Os {moeda(reservaReposicao)} para repor as peças que saíram já estão descontados,
-                e {moeda(retiradas)} que você já retirou este mês também.
+                Os {moeda(reservaReposicao)} para repor as peças que saíram já estão descontados, e{" "}
+                {moeda(retiradas)} que você já retirou este mês também.
               </p>
             </section>
 
@@ -180,7 +190,8 @@ function Financeiro() {
               <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
                 Você vendeu {atual.pecas} peças este mês, então cada peça carrega{" "}
                 {moeda(fixoUnitReal)} de custo fixo. Na precificação a conta usava a estimativa de{" "}
-                {volumeEstimado} peças, que dava {moeda(custosFixosTotal / Math.max(1, volumeEstimado))}.
+                {volumeEstimado} peças, que dava{" "}
+                {moeda(custosFixosTotal / Math.max(1, volumeEstimado))}.
               </p>
             </section>
 
@@ -210,10 +221,7 @@ function Financeiro() {
                       disabled={!liberado}
                       aria-label={`Remover ${l.descricao}`}
                       onClick={async () => {
-                        await supabase
-                          .from("loja_financeiro_lancamentos")
-                          .delete()
-                          .eq("id", l.id);
+                        await supabase.from("loja_financeiro_lancamentos").delete().eq("id", l.id);
                         invalidar();
                       }}
                       className="grid size-8 place-items-center rounded-lg bg-muted text-[14px] text-muted-foreground disabled:opacity-40"

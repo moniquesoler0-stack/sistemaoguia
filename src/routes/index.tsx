@@ -46,7 +46,9 @@ function Vendas() {
       void navigate({ to: "/entrar" });
       return;
     }
-    setAviso("O checkout ainda não está conectado. Assim que estiver, este botão leva direto ao pagamento.");
+    setAviso(
+      "O checkout ainda não está conectado. Assim que estiver, este botão leva direto ao pagamento.",
+    );
   }
 
   return (

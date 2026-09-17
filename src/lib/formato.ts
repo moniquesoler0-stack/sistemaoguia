@@ -28,7 +28,10 @@ export function pct(valor: number | null | undefined, casas = 1) {
 export function numero(entrada: string | number | null | undefined) {
   if (typeof entrada === "number") return Number.isFinite(entrada) ? entrada : 0;
   if (!entrada) return 0;
-  const limpo = String(entrada).replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+  const limpo = String(entrada)
+    .replace(/[^\d,.-]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
   const v = Number(limpo);
   return Number.isFinite(v) ? v : 0;
 }

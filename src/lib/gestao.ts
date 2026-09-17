@@ -128,12 +128,10 @@ export function variacoesDoProduto(produto: Produto): string[] {
   return lista.length > 0 ? lista : ["Única"];
 }
 
-export function quantidadeDe(
-  estoque: LinhaEstoque[],
-  produtoId: string,
-  variacao: string,
-) {
-  return estoque.find((e) => e.produto_id === produtoId && e.variacao === variacao)?.quantidade ?? 0;
+export function quantidadeDe(estoque: LinhaEstoque[], produtoId: string, variacao: string) {
+  return (
+    estoque.find((e) => e.produto_id === produtoId && e.variacao === variacao)?.quantidade ?? 0
+  );
 }
 
 /** Ajusta o estoque de uma variação e registra o movimento. */
@@ -250,8 +248,7 @@ export async function registrarVenda(params: {
     calculados.reduce((s, i) => s + i.preco * i.quantidade, 0) -
     params.desconto +
     params.freteCobrado;
-  const lucroTotal =
-    calculados.reduce((s, i) => s + i.lucro * i.quantidade, 0) - params.desconto;
+  const lucroTotal = calculados.reduce((s, i) => s + i.lucro * i.quantidade, 0) - params.desconto;
 
   const { data: venda, error } = await supabase
     .from("loja_vendas")

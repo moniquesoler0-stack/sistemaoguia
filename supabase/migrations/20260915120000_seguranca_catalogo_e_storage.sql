@@ -1,5 +1,5 @@
 -- Fecha o que o catálogo público e o storage expunham, e cria o bucket de
--- fotos que no Lovable existia só no painel, fora das migrações.
+-- fotos, que antes existia só no painel e não estava em migração nenhuma.
 
 -- 1. Bucket das fotos de peça. Privado: o app usa URL assinada
 --    (createSignedUrl), que funciona sem leitura pública.

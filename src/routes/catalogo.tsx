@@ -68,8 +68,7 @@ function CatalogoAdmin() {
 
   const produtos = loja.data?.produtos ?? [];
   const publicadas = produtos.filter((p) => p.publicado).length;
-  const endereco =
-    typeof window === "undefined" ? "" : `${window.location.origin}/loja/${slug}`;
+  const endereco = typeof window === "undefined" ? "" : `${window.location.origin}/loja/${slug}`;
 
   async function salvar(extra?: { ativo?: boolean }) {
     setSalvando(true);

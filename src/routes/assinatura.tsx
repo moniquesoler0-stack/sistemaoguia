@@ -24,7 +24,10 @@ export const Route = createFileRoute("/assinatura")({
 });
 
 const RECURSOS = [
-  ["Estoque por tamanho e cor", "Saiba o que ainda está na arara antes de prometer para a cliente."],
+  [
+    "Estoque por tamanho e cor",
+    "Saiba o que ainda está na arara antes de prometer para a cliente.",
+  ],
   ["Vendas registradas", "O lucro deixa de ser estimativa e passa a ser o que você vendeu."],
   ["Catálogo com link", "Suas peças com preço, prontas para mandar no WhatsApp."],
   ["Clientes", "Quem compra sempre, o que cada uma leva e quanto deixa na loja."],

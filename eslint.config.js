@@ -6,7 +6,9 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  // Pastas de build. Sem .vercel e .nitro aqui, o lint passa a analisar os
+  // bundles gerados e devolve dezenas de milhares de erros que não são do código.
+  { ignores: ["dist", ".output", ".vinxi", ".vercel", ".nitro", ".tanstack"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

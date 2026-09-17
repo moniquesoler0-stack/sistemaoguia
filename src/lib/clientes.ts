@@ -37,11 +37,16 @@ export function useInvalidarClientes() {
 export async function criarCliente(campos: Partial<Cliente>) {
   const id = await usuarioId();
   if (!id) return;
-  await supabase.from("loja_clientes").insert({ user_id: id, nome: campos.nome ?? "", ...campos } as never);
+  await supabase
+    .from("loja_clientes")
+    .insert({ user_id: id, nome: campos.nome ?? "", ...campos } as never);
 }
 
 export async function atualizarCliente(clienteId: string, campos: Partial<Cliente>) {
-  await supabase.from("loja_clientes").update(campos as never).eq("id", clienteId);
+  await supabase
+    .from("loja_clientes")
+    .update(campos as never)
+    .eq("id", clienteId);
 }
 
 export async function removerCliente(clienteId: string) {

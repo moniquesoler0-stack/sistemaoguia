@@ -31,10 +31,7 @@ function Painel({ aoFechar }: { aoFechar: () => void }) {
   const invalidar = useInvalidarLoja();
   const invalidarGestao = useInvalidarGestao();
 
-  const produtos = useMemo(
-    () => (loja.data?.produtos ?? []).filter((p) => p.ativo),
-    [loja.data],
-  );
+  const produtos = useMemo(() => (loja.data?.produtos ?? []).filter((p) => p.ativo), [loja.data]);
   const canais = (loja.data?.canais ?? []).filter((c) => c.ativo);
 
   const [produtoId, setProdutoId] = useState("");

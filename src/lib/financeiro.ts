@@ -73,8 +73,7 @@ export function caixaDoMes(dados: {
   const retiradas = soma(["retirada"]);
 
   const lucroFinal = dados.resumo.lucroMes - saidas + entradas;
-  const saldo =
-    dados.resumo.faturamento + entradas - saidas - retiradas - dados.custosFixosTotal;
+  const saldo = dados.resumo.faturamento + entradas - saidas - retiradas - dados.custosFixosTotal;
 
   // O dinheiro da reposição já está guardado: o custo das peças vendidas foi
   // descontado lá atrás, no lucro. Sobra o lucro menos o que já foi retirado.

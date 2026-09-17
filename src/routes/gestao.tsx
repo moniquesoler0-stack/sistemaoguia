@@ -209,9 +209,13 @@ function Area({
 function Foto({ url, nome, grande }: { url: string | null; nome: string; grande?: boolean }) {
   const classe = grande ? "aspect-square w-full" : "size-9";
   if (url)
-    return <img src={url} alt={nome} className={`${classe} rounded-xl object-cover`} loading="lazy" />;
+    return (
+      <img src={url} alt={nome} className={`${classe} rounded-xl object-cover`} loading="lazy" />
+    );
   return (
-    <div className={`${classe} grid place-items-center rounded-xl bg-muted text-[12px] text-muted-foreground`}>
+    <div
+      className={`${classe} grid place-items-center rounded-xl bg-muted text-[12px] text-muted-foreground`}
+    >
       {nome.slice(0, 1).toUpperCase()}
     </div>
   );

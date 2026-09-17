@@ -140,10 +140,7 @@ export function margemContribuicao(
 ) {
   const p = n(preco);
   return (
-    p -
-    custoVariavelUnit(peca) -
-    n(canal?.taxa_fixa) -
-    (p * taxasPct(base, canal, parcelas)) / 100
+    p - custoVariavelUnit(peca) - n(canal?.taxa_fixa) - (p * taxasPct(base, canal, parcelas)) / 100
   );
 }
 
@@ -170,8 +167,7 @@ export function simularDesconto(
   const depois = auditar(peca, base, novoPreco, canal);
   const volume = n(base.volumeMensal) || 1;
   const lucroMesAntes = antes.lucro * volume;
-  const pecasNecessarias =
-    depois.lucro > 0 ? Math.ceil(lucroMesAntes / depois.lucro) : null;
+  const pecasNecessarias = depois.lucro > 0 ? Math.ceil(lucroMesAntes / depois.lucro) : null;
   return {
     novoPreco,
     antes,

@@ -157,7 +157,9 @@ function Compras() {
                 <input
                   value={item.qtd}
                   onChange={(e) =>
-                    setItens((v) => v.map((x, i) => (i === idx ? { ...x, qtd: e.target.value } : x)))
+                    setItens((v) =>
+                      v.map((x, i) => (i === idx ? { ...x, qtd: e.target.value } : x)),
+                    )
                   }
                   inputMode="numeric"
                   className="w-[54px] rounded-xl bg-background px-2 py-3 text-center text-[14px] ring-1 ring-black/5 outline-none"

@@ -239,11 +239,7 @@ function Pecas() {
                 className="flex items-stretch gap-3 overflow-hidden rounded-2xl bg-background ring-1 ring-black/5"
               >
                 <span className={`w-1.5 shrink-0 ${cores[l.cor]}`} />
-                <Link
-                  to="/pecas/$id"
-                  params={{ id: l.produto.id }}
-                  className="min-w-0 flex-1 py-3"
-                >
+                <Link to="/pecas/$id" params={{ id: l.produto.id }} className="min-w-0 flex-1 py-3">
                   <p className="truncate text-[15px] font-semibold leading-tight">
                     {l.produto.nome}
                   </p>

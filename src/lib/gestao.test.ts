@@ -35,6 +35,8 @@ test("peça sem variação cai na Única", () => {
 });
 
 test("não repete variação duplicada", () => {
-  const grade = variacoesDoProduto(peca([{ tamanho: "P", cor: "preto" }, { tamanho: "P" }, { cor: "preto" }]));
+  const grade = variacoesDoProduto(
+    peca([{ tamanho: "P", cor: "preto" }, { tamanho: "P" }, { cor: "preto" }]),
+  );
   expect(grade).toEqual(["P / preto"]);
 });

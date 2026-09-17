@@ -31,7 +31,12 @@ export type ItemEmbalagem = {
   valor_unitario: number;
   aplicar_por_padrao: boolean;
 };
-export type Fornecedor = { id: string; nome: string; contato: string | null; observacao: string | null };
+export type Fornecedor = {
+  id: string;
+  nome: string;
+  contato: string | null;
+  observacao: string | null;
+};
 
 export type Produto = Peca & {
   id: string;
@@ -110,10 +115,7 @@ export function useDadosLoja() {
   });
 }
 
-export function baseDaLoja(
-  config: Config | null,
-  custosFixos: CustoFixo[],
-): BaseLoja {
+export function baseDaLoja(config: Config | null, custosFixos: CustoFixo[]): BaseLoja {
   return {
     custosFixosTotal: custosFixos.reduce((s, c) => s + Number(c.valor_mensal ?? 0), 0),
     volumeMensal: Number(config?.volume_mensal_esperado ?? 60),

@@ -58,8 +58,7 @@ function Estoque() {
       const grade = variacoes.map((v) => ({
         variacao: v,
         quantidade: quantidadeDe(estoque, p.id, v),
-        minimo:
-          estoque.find((e) => e.produto_id === p.id && e.variacao === v)?.minimo ?? 0,
+        minimo: estoque.find((e) => e.produto_id === p.id && e.variacao === v)?.minimo ?? 0,
       }));
       const total = grade.reduce((s, g) => s + g.quantidade, 0);
       const custo = custoVariavelUnit(p);

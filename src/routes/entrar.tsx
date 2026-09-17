@@ -156,7 +156,6 @@ function Campo({
 function traduzir(mensagem: string) {
   if (mensagem.includes("Invalid login credentials")) return "Email ou senha incorretos.";
   if (mensagem.includes("already registered")) return "Esse email já tem conta. Faça login.";
-  if (mensagem.includes("Password should be"))
-    return "A senha precisa de pelo menos 6 caracteres.";
+  if (mensagem.includes("Password should be")) return "A senha precisa de pelo menos 6 caracteres.";
   return "Não deu certo agora. Confira os dados e tente de novo.";
 }

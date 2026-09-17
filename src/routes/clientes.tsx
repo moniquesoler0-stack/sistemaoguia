@@ -162,8 +162,10 @@ function Clientes() {
                         {c.nome}
                       </p>
                       <p className="mt-0.5 text-[12px] text-muted-foreground">
-                        {[c.tamanho_habitual ? `Veste ${c.tamanho_habitual}` : null,
-                          c.instagram ? `@${c.instagram}` : null]
+                        {[
+                          c.tamanho_habitual ? `Veste ${c.tamanho_habitual}` : null,
+                          c.instagram ? `@${c.instagram}` : null,
+                        ]
                           .filter(Boolean)
                           .join(" · ") || "Sem detalhes"}
                       </p>
@@ -205,15 +207,7 @@ function Clientes() {
   );
 }
 
-function Entrada({
-  valor,
-  ao,
-  dica,
-}: {
-  valor: string;
-  ao: (v: string) => void;
-  dica: string;
-}) {
+function Entrada({ valor, ao, dica }: { valor: string; ao: (v: string) => void; dica: string }) {
   return (
     <input
       value={valor}

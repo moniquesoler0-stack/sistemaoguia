@@ -238,7 +238,9 @@ function TelaPeca() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="mb-1 text-[11px] uppercase tracking-wide text-mint-forte">Você ganha</p>
+                    <p className="mb-1 text-[11px] uppercase tracking-wide text-mint-forte">
+                      Você ganha
+                    </p>
                     <p
                       className={
                         "pop fonte-display text-[40px] font-semibold leading-none " +
@@ -259,9 +261,10 @@ function TelaPeca() {
                   ) : null}
                   {calc.marketplace ? (
                     <p>
-                      No marketplace, você{" "}
-                      {calc.marketplace.lucro >= 0 ? "ganha" : "perde"}{" "}
-                      <b className={calc.marketplace.lucro >= 0 ? "text-background/90" : "text-rose"}>
+                      No marketplace, você {calc.marketplace.lucro >= 0 ? "ganha" : "perde"}{" "}
+                      <b
+                        className={calc.marketplace.lucro >= 0 ? "text-background/90" : "text-rose"}
+                      >
                         {moeda(Math.abs(calc.marketplace.lucro))}
                       </b>
                       .
@@ -349,9 +352,7 @@ function TelaPeca() {
                   </span>
                   <select
                     value={produto.fornecedor_id ?? ""}
-                    onChange={(e) =>
-                      void atualizar({ fornecedor_id: e.target.value || null })
-                    }
+                    onChange={(e) => void atualizar({ fornecedor_id: e.target.value || null })}
                     className="w-full rounded-2xl bg-background px-3 py-3 text-[14px] ring-1 ring-black/5"
                   >
                     <option value="">Sem fornecedor</option>

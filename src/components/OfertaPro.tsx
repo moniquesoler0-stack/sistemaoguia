@@ -10,8 +10,7 @@ export function OfertaPro({ texto }: { texto: string }) {
   const loja = useDadosLoja();
 
   const totalPecas = loja.data?.produtos.length ?? 0;
-  const mostrar =
-    !!perfil.data && !perfil.data.tem_minha_loja_pro && totalPecas >= 15;
+  const mostrar = !!perfil.data && !perfil.data.tem_minha_loja_pro && totalPecas >= 15;
 
   if (!mostrar) return null;
 

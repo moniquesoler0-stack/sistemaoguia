@@ -89,15 +89,15 @@ function Ajustes() {
     invalidar();
   }
 
-  async function apagar(tabela: "loja_custos_fixos" | "loja_itens_embalagem" | "loja_fornecedores", id: string) {
+  async function apagar(
+    tabela: "loja_custos_fixos" | "loja_itens_embalagem" | "loja_fornecedores",
+    id: string,
+  ) {
     await supabase.from(tabela).delete().eq("id", id);
     invalidar();
   }
 
-  const totalFixo = (loja.data?.custosFixos ?? []).reduce(
-    (s, c) => s + Number(c.valor_mensal),
-    0,
-  );
+  const totalFixo = (loja.data?.custosFixos ?? []).reduce((s, c) => s + Number(c.valor_mensal), 0);
 
   return (
     <Casca titulo="Ajustes" subtitulo={nomeLoja || "sua loja"}>
@@ -203,9 +203,7 @@ function Ajustes() {
               <p className="text-[13px] leading-relaxed text-muted-foreground">
                 {perfil.data?.email}. Acesso vitalício ao Minha Loja
                 {perfil.data?.tem_minha_loja ? " ativo" : " não ativo"}.
-                {perfil.data?.tem_minha_loja_pro
-                  ? " Pro ativo."
-                  : " Pro não ativo."}
+                {perfil.data?.tem_minha_loja_pro ? " Pro ativo." : " Pro não ativo."}
               </p>
               <button
                 onClick={async () => {

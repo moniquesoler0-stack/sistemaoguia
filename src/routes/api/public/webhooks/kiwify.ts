@@ -59,9 +59,7 @@ export const Route = createFileRoute("/api/public/webhooks/kiwify")({
           return new Response("invalid body", { status: 400 });
         }
 
-        const email = (corpo.Customer?.email ?? corpo.customer?.email ?? "")
-          .trim()
-          .toLowerCase();
+        const email = (corpo.Customer?.email ?? corpo.customer?.email ?? "").trim().toLowerCase();
         if (!email) return new Response("missing email", { status: 400 });
 
         const status = (corpo.order_status ?? corpo.webhook_event_type ?? "").toLowerCase();
